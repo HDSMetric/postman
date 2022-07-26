@@ -1,0 +1,668 @@
+{
+	"info": {
+		"_postman_id": "40ce9ed2-2c65-408f-acd6-f2df89f27e6a",
+		"name": "SigningCloud",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get Token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const util = eval(environment.ft)().util;\r",
+							"var jsonData = JSON.parse(responseBody);\r",
+							"\r",
+							"var data = jsonData.data;\r",
+							"\r",
+							"var decryptJson = util.decrypt(data);\r",
+							"console.log(\"decryptJson.at\", decryptJson.at);\r",
+							"\r",
+							"postman.setEnvironmentVariable(\"accessToken\", decryptJson.at);\r",
+							"\r",
+							"//test\r",
+							"pm.test(\"Status code 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// const CryptoJS = require(\"crypto-js\");\r",
+							"postman.setEnvironmentVariable('ft', () => {\r",
+							"    var encrypt = (data) => {\r",
+							"        var secret = postman.getEnvironmentVariable(\"apiSecret\");\r",
+							"        var parsedKey = CryptoJS.SHA256(secret);\r",
+							"        return CryptoJS.AES.encrypt(data, parsedKey, {\r",
+							"            mode: CryptoJS.mode.ECB,\r",
+							"            padding: CryptoJS.pad.Pkcs7\r",
+							"        });\r",
+							"    }\r",
+							"    var decrypt = (data) => {\r",
+							"        var secret = postman.getEnvironmentVariable(\"apiSecret\");\r",
+							"        var parsedKey = CryptoJS.SHA256(secret);\r",
+							"        var ciphertext = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Hex.parse(data));\r",
+							"        var decryptedData = CryptoJS.AES.decrypt(ciphertext, parsedKey,\r",
+							"            {\r",
+							"                mode: CryptoJS.mode.ECB,\r",
+							"                padding: CryptoJS.pad.Pkcs7\r",
+							"            }\r",
+							"        );\r",
+							"        var decryptedText = decryptedData.toString();\r",
+							"        var decryptJson = JSON.parse(util.hex_to_ascii(decryptedText));\r",
+							"        return decryptJson;\r",
+							"    }\r",
+							"    var getMac = (encryptedData) => {\r",
+							"        var secret = postman.getEnvironmentVariable(\"apiSecret\");\r",
+							"        return CryptoJS.SHA256(encryptedData.ciphertext + secret)\r",
+							"    }\r",
+							"    var hex_to_ascii = (str1) => {\r",
+							"        var hex = str1.toString();\r",
+							"        var str = '';\r",
+							"        for (var n = 0; n < hex.length; n += 2) {\r",
+							"            str += String.fromCharCode(parseInt(hex.substr(n, 2), 16));\r",
+							"        }\r",
+							"        return str;\r",
+							"    }\r",
+							"    var preExecute = (dataBody, dataEnv = \"data\", macEnv = \"mac\") => {\r",
+							"        var encryptedData = encrypt(JSON.stringify(dataBody));\r",
+							"        var mac = getMac(encryptedData);\r",
+							"\r",
+							"        postman.setEnvironmentVariable(dataEnv, encryptedData.ciphertext);\r",
+							"        postman.setEnvironmentVariable(macEnv, mac);\r",
+							"        postman.setEnvironmentVariable(\"data\", encryptedData.ciphertext);\r",
+							"        postman.setEnvironmentVariable(\"mac\", mac);\r",
+							"    }\r",
+							"    return {\r",
+							"        util: {\r",
+							"            encrypt,\r",
+							"            decrypt,\r",
+							"            getMac,\r",
+							"            hex_to_ascii,\r",
+							"            preExecute\r",
+							"        }\r",
+							"    };\r",
+							"});\r",
+							"tests['Utils initialized'] = true;"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"strictSSL": false,
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "client_id",
+						"value": "",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "state",
+						"value": "",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://{{host}}{{port}}{{path}}accesstoken?client_id={{apiKey}}&state=",
+					"protocol": "https",
+					"host": [
+						"{{host}}{{port}}{{path}}accesstoken"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						},
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						},
+						{
+							"key": "client_id",
+							"value": "{{apiKey}}"
+						},
+						{
+							"key": "state",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Account info",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const util = eval(environment.ft)().util;\r",
+							"var jsonData = JSON.parse(responseBody);\r",
+							"var data = jsonData.data;\r",
+							"var decryptJson = util.decrypt(data);\r",
+							"console.log(\"decryptJson\", JSON.stringify(decryptJson));\r",
+							"\r",
+							"//test\r",
+							" pm.test(\"Status code 200\", function(){\r",
+							"     pm.response.to.have.status(200);\r",
+							" })"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{host}}{{port}}{{path}}account/infomation?accesstoken={{accessToken}}",
+					"protocol": "https",
+					"host": [
+						"{{host}}{{port}}{{path}}account"
+					],
+					"path": [
+						"infomation"
+					],
+					"query": [
+						{
+							"key": "accesstoken",
+							"value": "{{accessToken}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Preupload Document",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const jsonData = pm.response.json().files;\r",
+							"\r",
+							"postman.setEnvironmentVariable(\"base64ByteString\", jsonData[Object.keys(jsonData)[0]].split(/[,]+/).pop());\r",
+							"postman.setEnvironmentVariable(\"fileType\", Object.keys(jsonData)[0].split(/[.]+/).pop());\r",
+							"\r",
+							"postman.setNextRequest(\"Upload Document\");\r",
+							"pm.test(\"Status code 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": "{{uploadFilePath}}"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://postman-echo.com/post",
+					"protocol": "https",
+					"host": [
+						"postman-echo",
+						"com"
+					],
+					"path": [
+						"post"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Upload Document",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const util = eval(environment.ft)().util;\r",
+							"var base64ByteString = postman.getEnvironmentVariable(\"base64ByteString\");\r",
+							"var words = CryptoJS.enc.Base64.parse(base64ByteString);\r",
+							"\r",
+							"var dataBody = {\r",
+							"\t\"contractInfo\": {\r",
+							"\t\t\"contractname\": \"postman document [\" + pm.variables.replaceIn('{{$randomCountry}}') + \"]\",\r",
+							"\t\t\"signernum\": 1,\r",
+							"\t\t\"contractnum\": \"\",\r",
+							"\t\t\"isWatermark\": false,\r",
+							"\t\t\"signerinfo\": [{\r",
+							"\t\t\t\"name\": \"[signername]\",\r",
+							"\t\t\t\"caprovide\": \"1\",\r",
+							"\t\t\t\"email\": \"[example@email.com]\",\r",
+							"\t\t\t\"authtype\": 0\r",
+							"\t\t}]\r",
+							"\t},\r",
+							"\t\"uploadFileHash\": CryptoJS.SHA256(words).toString(CryptoJS.enc.Hex),\r",
+							"\t\"type\": postman.getEnvironmentVariable(\"fileType\")\r",
+							"}\r",
+							"\r",
+							"util.preExecute(dataBody);\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const util = eval(environment.ft)().util;\r",
+							"var jsonData = JSON.parse(responseBody);\r",
+							"var data = jsonData.data;\r",
+							"var decryptJson = util.decrypt(data);\r",
+							"console.log(\"decryptJson\", JSON.stringify(decryptJson));\r",
+							"\r",
+							"postman.setEnvironmentVariable(\"uploadedContractNum\", decryptJson.contractnum);\r",
+							"\r",
+							"pm.test(\"Status code 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "accesstoken",
+							"value": "{{accessToken}}",
+							"type": "text"
+						},
+						{
+							"key": "mac",
+							"value": "{{mac}}",
+							"type": "text"
+						},
+						{
+							"key": "data",
+							"value": "{{data}}",
+							"type": "text"
+						},
+						{
+							"key": "uploadFile",
+							"type": "file",
+							"src": "{{uploadFilePath}}"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://{{host}}{{port}}{{path}}contract/file",
+					"protocol": "https",
+					"host": [
+						"{{host}}{{port}}{{path}}contract"
+					],
+					"path": [
+						"file"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Set Coordinates",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const util = eval(environment.ft)().util;\r",
+							"var base64ByteString = postman.getEnvironmentVariable(\"base64ByteString\");\r",
+							"var words = CryptoJS.enc.Base64.parse(base64ByteString);\r",
+							"\r",
+							"var dataBody = {\r",
+							"\t\"contractInfo\": {\r",
+							"\t\t\"signerinfo\": [{\r",
+							"\t\t\t\"email\": \"[example@email.com]\",\r",
+							"\t\t\t\"signset\": \"[{\\\"pageindex\\\":1,\\\"top\\\":810,\\\"left\\\":150,\\\"fieldtype\\\":\\\"sign\\\"},{\\\"pageindex\\\":1,\\\"top\\\":900,\\\"left\\\":200,\\\"height\\\":25,\\\"width\\\":200,\\\"fieldtype\\\":\\\"textfield\\\"},{\\\"pageindex\\\":1,\\\"top\\\":930,\\\"left\\\":250,\\\"fieldtype\\\":\\\"signdate\\\"}]\"\r",
+							"\t\t}],\r",
+							"        \"contractnum\":postman.getEnvironmentVariable(\"uploadedContractNum\")\r",
+							"\t}\r",
+							"}\r",
+							"\r",
+							"util.preExecute(dataBody);\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const util = eval(environment.ft)().util;\r",
+							"\r",
+							"pm.test(\"Status code 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "accesstoken",
+							"value": "{{accessToken}}",
+							"type": "text"
+						},
+						{
+							"key": "mac",
+							"value": "{{mac}}",
+							"type": "text"
+						},
+						{
+							"key": "data",
+							"value": "{{data}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://{{host}}{{port}}{{path}}contract/coordinate",
+					"protocol": "https",
+					"host": [
+						"{{host}}{{port}}{{path}}contract"
+					],
+					"path": [
+						"coordinate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Sign Auto",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const util = eval(environment.ft)().util;\r",
+							"\r",
+							"var dataBody = {\r",
+							"    \"signerInfo\":{\r",
+							"        \"verifycode\":\"5\",\r",
+							"        \"signkeyword\":\"[sign keyword]\",\r",
+							"        \"name\":\"[signer name]\",\r",
+							"        \"email\":\"[example@email.com]\"\r",
+							"    },\r",
+							"    \"callUrl\":\"https://jsonplaceholder.typicode.com/todos/1\",\r",
+							"    \"contractnum\":postman.getEnvironmentVariable(\"uploadedContractNum\"),\r",
+							"    \"signimg\":\"[image hex string]\"\r",
+							"};\r",
+							"\r",
+							"util.preExecute(dataBody, \"signAutoData\", \"signAutoMac\");"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//test\r",
+							"pm.test(\"Status code 200, sign success\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"    let responseJson = pm.response.json();\r",
+							"    pm.expect(responseJson.result).to.eql(0);\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "accesstoken",
+							"value": "{{accessToken}}",
+							"type": "text"
+						},
+						{
+							"key": "data",
+							"value": "{{data}}",
+							"type": "text"
+						},
+						{
+							"key": "mac",
+							"value": "{{mac}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://{{host}}{{port}}{{path}}contract/signature/automatic",
+					"protocol": "https",
+					"host": [
+						"{{host}}{{port}}{{path}}contract"
+					],
+					"path": [
+						"signature",
+						"automatic"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Sign Manual",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const util = eval(environment.ft)().util;\r",
+							"\r",
+							"var dataBody = {\r",
+							"    \"signerInfo\":{\r",
+							"        \"name\":\"[signername]\",\r",
+							"        \"email\":\"[[example@email.com]]\"\r",
+							"    },\r",
+							"    \"callUrl\":\"https://jsonplaceholder.typicode.com/todos/1\",\r",
+							"    \"backUrl\":\"https://jsonplaceholder.typicode.com/todos/1\",\r",
+							"     \"contractnum\":postman.getEnvironmentVariable(\"uploadedContractNum\")\r",
+							"};\r",
+							"\r",
+							"util.preExecute(dataBody);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const util = eval(environment.ft)().util;\r",
+							"\r",
+							"//test\r",
+							"pm.test(\"Status code 200, sign success\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"    let responseJson = pm.response.json();\r",
+							"    pm.expect(responseJson.result).to.eql(0);\r",
+							"    \r",
+							"    var jsonData = JSON.parse(responseBody);\r",
+							"    var data = jsonData.data;\r",
+							"    var decryptJson = util.decrypt(data);\r",
+							"    console.log(\"url\", decryptJson.url);\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "accesstoken",
+							"value": "{{accessToken}}",
+							"type": "text"
+						},
+						{
+							"key": "data",
+							"value": "{{data}}",
+							"type": "text"
+						},
+						{
+							"key": "mac",
+							"value": "{{mac}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://{{host}}{{port}}{{path}}contract/signature/manual",
+					"protocol": "https",
+					"host": [
+						"{{host}}{{port}}{{path}}contract"
+					],
+					"path": [
+						"signature",
+						"manual"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Upload Signature Image",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const util = eval(environment.ft)().util;\r",
+							"\r",
+							"var dataBody = {\r",
+							"    \"img\": \"\",\r",
+							"    \"signer\" : {\r",
+							"        \"email\" : \"[[example@email.com]]\",\r",
+							"        \"name\" : \"[name]\"\r",
+							"    }\r",
+							"};\r",
+							"\r",
+							"util.preExecute(dataBody);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const util = eval(environment.ft)().util;\r",
+							"\r",
+							"//test\r",
+							"pm.test(\"Status code 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"    let responseJson = pm.response.json();\r",
+							"    pm.expect(responseJson.result).to.eql(0);\r",
+							"    \r",
+							"    var jsonData = JSON.parse(responseBody);\r",
+							"    var data = jsonData.data;\r",
+							"    var decryptJson = util.decrypt(data);\r",
+							"    console.log(decryptJson);\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "accesstoken",
+							"value": "{{accessToken}}",
+							"type": "default"
+						},
+						{
+							"key": "data",
+							"value": "{{data}}",
+							"type": "default"
+						},
+						{
+							"key": "mac",
+							"value": "{{mac}}",
+							"type": "default"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://{{host}}{{port}}{{path}}user/signimg",
+					"protocol": "https",
+					"host": [
+						"{{host}}{{port}}{{path}}user"
+					],
+					"path": [
+						"signimg"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "fileName",
+			"value": ""
+		},
+		{
+			"key": "fileBytes",
+			"value": ""
+		}
+	]
+}
